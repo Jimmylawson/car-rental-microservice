@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  bookingservice:
+    image: "bookingservice:latest"
+    container_name: "bookingservice"
+    ports:
+      - "8081:8081"
+    networks:
+      - carrental
+
+  vehicleservice:
+    image: "vehicleservice:latest"
+    container_name: "vehicleservice"
+    ports:
+      - "8090:8090"
+    networks:
+      - carrental
+
+  userservice:
+    image: "userservice:latest"
+    container_name: "userservice"
+    ports:
+      - "8085:8085"
+    networks:
+      - carrental
+
+networks:
+  carrental:
+    driver: bridge
+
+
+
+
