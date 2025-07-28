@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: vehicle-service
+  h2:
+    datasource:
+      url: jdbc:h2:mem:vehicleservice
+      username: sa
+      password: sa
+      driverClassName: org.h2.Driver
+    console:
+      enabled: true
+  hibernate:
+    ddl-auto: create-drop
+    dialect: org.hibernate.dialect.H2Dialect
