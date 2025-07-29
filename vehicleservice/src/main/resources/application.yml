@@ -19,8 +19,36 @@ spring:
       path: /h2-console
       settings:
         web-allow-others: true
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: '*'
+
+
+eureka:
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 15000
+        readTimeout: 120000
+        loggerLevel: basic
+
+info:
+  app:
+    name: "vehicle-service"
+    description: "vehicle microservice for car rental system"
+    version: "1.0.0"
+
+# Uncomment for actuator endpoints
+# management:
+#   endpoints:
+#     web:
+#       exposure:
+#         include: '*'
+#   endpoint:
+#     health:
+#       show-details: always

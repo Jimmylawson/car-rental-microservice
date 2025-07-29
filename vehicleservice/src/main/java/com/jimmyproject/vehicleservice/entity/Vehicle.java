@@ -1,7 +1,7 @@
 package com.jimmyproject.vehicleservice.entity;
 
 
-import com.jimmyproject.utils.entity.BaseEntity;
+
 import com.jimmyproject.vehicleservice.enums.CarType;
 import jakarta.persistence.*;
 import lombok.*;

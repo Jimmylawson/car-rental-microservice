@@ -16,9 +16,29 @@ spring:
   h2:
     console:
       enabled: true
-      path: /h2-console
-      settings:
-        web-allow-others: true
+
+eureka:
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 15000
+        readTimeout: 120000
+        loggerLevel: basic
+
+
+info:
+  app:
+    name: "booking-service"
+    description: "Booking microservice for reservations"
+    version: "1.0.0"
 
 #management:
 #  endpoints:

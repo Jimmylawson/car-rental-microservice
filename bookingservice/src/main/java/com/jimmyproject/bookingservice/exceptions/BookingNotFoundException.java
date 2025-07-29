@@ -1,6 +1,7 @@
 package com.jimmyproject.bookingservice.exceptions;
 
-import com.jimmyproject.utils.exceptions.ResourceNotFoundException;
+
+import com.jimmyproject.bookingservice.exception.ResourceNotFoundException;
 
 public class BookingNotFoundException extends ResourceNotFoundException {
     public BookingNotFoundException(String fieldName, Object bookingNotFound) {

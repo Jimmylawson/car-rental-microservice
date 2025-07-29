@@ -3,7 +3,7 @@ package com.jimmyproject.bookingservice.entity;
 import com.jimmyproject.bookingservice.enums.BookingStatus;
 
 
-import com.jimmyproject.utils.entity.BaseEntity;
+import com.jimmyproject.bookingservice.model.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

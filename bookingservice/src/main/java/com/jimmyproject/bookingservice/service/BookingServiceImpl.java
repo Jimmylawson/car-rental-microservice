@@ -1,7 +1,8 @@
 package com.jimmyproject.bookingservice.service;
 
-import com.jimmyproject.bookingservice.dtos.BookingRequestDto;
-import com.jimmyproject.bookingservice.dtos.BookingResponseDto;
+import com.jimmyproject.bookingservice.clients.UserServiceClient;
+import com.jimmyproject.bookingservice.clients.VehicleServiceClient;
+import com.jimmyproject.bookingservice.dtos.*;
 import com.jimmyproject.bookingservice.entity.Booking;
 import com.jimmyproject.bookingservice.exceptions.BookingNotFoundException;
 import com.jimmyproject.bookingservice.mapper.BookingMapper;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -22,6 +24,8 @@ import java.util.UUID;
 public class BookingServiceImpl implements BookingServiceInterface {
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
+    private final UserServiceClient userServiceClient;
+    private final VehicleServiceClient vehicleServiceClient;
 
     @Override
     @Transactional
@@ -75,31 +79,33 @@ public class BookingServiceImpl implements BookingServiceInterface {
     }
 
     @Override
-    public Page<BookingResponseDto> getBookingsByUser(UUID userId, Pageable pageable) {
+    public Page<BookingDetailsDto> getBookingsByUser(UUID userId, Pageable pageable) {
         log.debug("Fetching bookings for user ID: {}", userId);
-        Page<Booking> bookings = bookingRepository.findByUserId(userId, pageable);
-        
-        if (bookings.isEmpty()) {
-            log.info("No bookings found for user ID: {}", userId);
-        } else {
-            log.debug("Found {} bookings for user ID: {}", bookings.getTotalElements(), userId);
-        }
-        
-        return bookings.map(bookingMapper::toBookingResponseDto);
+        return bookingRepository.findByUserId(userId, pageable)
+                .map(this::enrichBookingWithDetails);
+
     }
 
     @Override
-    public Page<BookingResponseDto> getBookingsByVehicle(UUID vehicleId, Pageable pageable) {
-        log.debug("Fetching bookings for vehicle ID: {}", vehicleId);
-        Page<Booking> bookings = bookingRepository.findByVehicleId(vehicleId, pageable);
-        
-        if (bookings.isEmpty()) {
-            log.info("No bookings found for vehicle ID: {}", vehicleId);
-        } else {
-            log.debug("Found {} bookings for vehicle ID: {}", bookings.getTotalElements(), vehicleId);
-        }
-        
-        return bookings.map(bookingMapper::toBookingResponseDto);
+    public Page<BookingDetailsDto> getBookingsByVehicle(UUID vehicleId, Pageable pageable) {
+        return bookingRepository.findByVehicleId(vehicleId, pageable)
+                .map(this::enrichBookingWithDetails);
+    }
+    @Override
+    public BookingDetailsDto getBookingWithDetails(UUID bookingId) {
+        var booking = getBookingOrThrowError(bookingId);
+        var vehicle = vehicleServiceClient.getVehicleById(booking.getVehicleId());
+        var user = userServiceClient.getUserById(booking.getUserId());
+
+        //Build and return the response
+        return BookingDetailsDto.builder()
+                .bookingId(booking.getId())
+                .startDate(booking.getStartDate())
+                .endDate(booking.getEndDate())
+                .status(booking.getStatus())
+                .vehicle(vehicle)
+                .user(user)
+                .build();
     }
 
     /*
@@ -108,6 +114,24 @@ public class BookingServiceImpl implements BookingServiceInterface {
     private Booking getBookingOrThrowError(UUID bookingId) {
         return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException("id", bookingId));
+    }
+
+    private BookingDetailsDto enrichBookingWithDetails(Booking booking) {
+        CompletableFuture<VehicleResponseDto> vehicleFuture = CompletableFuture.supplyAsync(
+                () -> vehicleServiceClient.getVehicleById(booking.getVehicleId()));
+        CompletableFuture<UserResponseDto> userFuture = CompletableFuture.supplyAsync(
+                () -> userServiceClient.getUserById(booking.getUserId()));
+
+        return CompletableFuture.allOf(vehicleFuture, userFuture)
+                .thenApply(v -> BookingDetailsDto.builder()
+                        .bookingId(booking.getId())
+                        .startDate(booking.getStartDate())
+                        .endDate(booking.getEndDate())
+                        .status(booking.getStatus())
+                        .vehicle(vehicleFuture.join())
+                        .user(userFuture.join())
+                        .build())
+                .join();
     }
 
 }

@@ -1,5 +1,6 @@
 package com.jimmyproject.bookingservice.controller;
 
+import com.jimmyproject.bookingservice.dtos.BookingDetailsDto;
 import com.jimmyproject.bookingservice.dtos.BookingRequestDto;
 import com.jimmyproject.bookingservice.dtos.BookingResponseDto;
 import com.jimmyproject.bookingservice.service.BookingServiceInterface;
@@ -60,7 +61,7 @@ public class BookingController {
 
     @Operation(summary = "Get bookings by user ID")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Page<BookingResponseDto>> getBookingsByUser(
+    public ResponseEntity<Page<BookingDetailsDto>> getBookingsByUser(
             @PathVariable UUID userId,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(bookingService.getBookingsByUser(userId, pageable));
@@ -68,10 +69,15 @@ public class BookingController {
 
     @Operation(summary = "Get bookings by vehicle ID")
     @GetMapping("/vehicle/{vehicleId}")
-    public ResponseEntity<Page<BookingResponseDto>> getBookingsByVehicle(
+    public ResponseEntity<Page<BookingDetailsDto>> getBookingsByVehicle(
             @PathVariable UUID vehicleId,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(bookingService.getBookingsByVehicle(vehicleId, pageable));
     }
 
+    @Operation(summary = "Get booking with full details including user and vehicle information")
+    @GetMapping("/{bookingId}/details")
+    public ResponseEntity<BookingDetailsDto> getBookingWithDetails(@PathVariable UUID bookingId) {
+        return ResponseEntity.ok(bookingService.getBookingWithDetails(bookingId));
+    }
 }
