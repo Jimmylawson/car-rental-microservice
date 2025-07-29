@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Tag(name = "Vehicle Management", description = "APIs for managing vehicles")
 @RestController
-@RequestMapping("/api/v1/vehicles")
+@RequestMapping("/api/vehicles")
 @RequiredArgsConstructor
 public class VehicleController {
     

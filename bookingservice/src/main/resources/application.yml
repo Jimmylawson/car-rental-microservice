@@ -1,16 +1,27 @@
 server:
   port: 8081
+
 spring:
   application:
     name: booking-service
+  datasource:
+    url: jdbc:h2:mem:bookingdb
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
   h2:
-    datasource:
-      url: jdbc:h2:mem:bookingservice
-      username: sa
-      password: sa
-      driverClassName: org.h2.Driver
     console:
       enabled: true
-  hibernate:
-    ddl-auto: create-drop
-    dialect: org.hibernate.dialect.H2Dialect
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

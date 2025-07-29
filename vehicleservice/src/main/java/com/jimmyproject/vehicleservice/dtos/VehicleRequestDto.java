@@ -28,7 +28,7 @@ public class VehicleRequestDto {
     @NotNull(message = "Year is required")
     @Min(value = 2010, message = "Year must be 2010 or later")
     @Max(value = 2025, message = "Year cannot be in the future")
-    private int year;
+    private int manufactureYear;
 
     @NotBlank(message = "Color is required")
     @Size(max = 30, message = "Color must be less than 30 characters")

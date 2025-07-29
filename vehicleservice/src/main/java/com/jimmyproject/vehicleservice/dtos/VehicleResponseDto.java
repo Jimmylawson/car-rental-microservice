@@ -16,7 +16,7 @@ public class VehicleResponseDto {
     private String model;
     private String licensePlate;
     private CarType carType;
-    private int year;
+    private int manufactureYear;
     private String color;
     private int seats;
     private boolean available;
