@@ -48,6 +48,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="discoveryserver" />
+        <module name="gateway" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -60,6 +61,7 @@
       <module name="bookingservice" options="-parameters -Amapstruct.defaultComponentModel=spring" />
       <module name="configserver" options="-parameters" />
       <module name="discoveryserver" options="-parameters" />
+      <module name="gateway" options="-parameters" />
       <module name="userservice" options="-parameters -parameters -Amapstruct.defaultComponentModel=spring -Amapstruct.unmappedTargetPolicy=IGNORE" />
       <module name="vehicleservice" options="-parameters -parameters -Amapstruct.defaultComponentModel=spring -Amapstruct.unmappedTargetPolicy=IGNORE" />
       <module name="vehileservice" options="-parameters -parameters -Amapstruct.defaultComponentModel=spring -Amapstruct.unmappedTargetPolicy=IGNORE" />

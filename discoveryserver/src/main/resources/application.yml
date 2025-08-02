@@ -5,24 +5,45 @@ spring:
   application:
     name: discovery-server
 
+# Disable Spring Cloud Config
+  cloud:
+    config:
+      enabled: false
+
+# Eureka Server Configuration
 eureka:
   instance:
     hostname: localhost
+    prefer-ip-address: false
+    
   client:
     register-with-eureka: false
     fetch-registry: false
     service-url:
-      default-zone: http://${eureka.instance.hostname}:${server.port}/eureka/
+      default-zone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+      
   server:
     enable-self-preservation: false
     wait-time-in-ms-when-sync-empty: 0
     eviction-interval-timer-in-ms: 5000
-
+    peer-eureka-nodes-update-interval-ms: 10000
+    
+# Actuator Endpoints
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+      base-path: /actuator
   endpoint:
     health:
       show-details: always
+    
+# Logging Configuration
+logging:
+  level:
+    org.springframework.cloud.netflix.eureka: DEBUG
+    com.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG

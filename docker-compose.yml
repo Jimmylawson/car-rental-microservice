@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  discoveryserver:
+    image: "discoveryserver:latest"
+    container_name: "discoveryserver"
+    hostname: discoveryserver
+    ports:
+      - "8761:8761"
+    networks:
+      carrental:
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    environment:
+      - SPRING_APPLICATION_NAME=discovery-server
+      - EUREKA_INSTANCE_HOSTNAME=discoveryserver
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discoveryserver:8761/eureka/
+
   bookingservice:
     image: "bookingservice:latest"
     container_name: "bookingservice"
@@ -8,6 +28,16 @@ services:
       - "8081:8081"
     networks:
       - carrental
+    depends_on:
+      discoveryserver:
+        condition: service_healthy
+      userservice:
+        condition: service_started
+      vehicleservice:
+        condition: service_started
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discoveryserver:8761/eureka/
+      - SPRING_APPLICATION_NAME=booking-service
 
   vehicleservice:
     image: "vehicleservice:latest"
@@ -16,6 +46,12 @@ services:
       - "8090:8090"
     networks:
       - carrental
+    depends_on:
+      discoveryserver:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discoveryserver:8761/eureka/
+      - SPRING_APPLICATION_NAME=vehicle-service
 
   userservice:
     image: "userservice:latest"
@@ -24,11 +60,61 @@ services:
       - "8085:8085"
     networks:
       - carrental
+    depends_on:
+      discoveryserver:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discoveryserver:8761/eureka/
+      - SPRING_APPLICATION_NAME=user-service
+
+  userservice-instance2:
+    image: "userservice:latest"
+    container_name: "userservice-instance2"
+    ports:
+      - "8086:8086" #Differnt host port
+    networks:
+      - carrental
+    depends_on:
+      discoveryserver:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=8086 #Differnt port override
+      - SPRING_APPLICATION_NAME=user-service
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discoveryserver:8761/eureka/
+
+  gateway:
+    image: "gateway:latest"
+    container_name: "gateway"
+    hostname: gateway
+    ports:
+      - "8088:8088"
+    networks:
+      - carrental
+    depends_on:
+      discoveryserver:
+        condition: service_healthy
+    environment:
+      # Basic Spring Boot settings
+      - SPRING_APPLICATION_NAME=gateway
+      - SPRING_CLOUD_CONFIG_ENABLED=false
+      
+      # Actuator Configuration
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=*
+      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=always
+      
+      # Logging
+      - LOGGING_LEVEL_ROOT=INFO
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY=DEBUG
+      - LOGGING_LEVEL_COM_NETFLIX_EUREKA=DEBUG
+      - LOGGING_LEVEL_COM_NETFLIX_DISCOVERY=DEBUG
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_COMMONS=DEBUG
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 networks:
   carrental:
     driver: bridge
-
-
-
-

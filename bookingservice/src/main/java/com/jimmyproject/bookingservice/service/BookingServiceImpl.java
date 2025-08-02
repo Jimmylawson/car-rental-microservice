@@ -116,7 +116,9 @@ public class BookingServiceImpl implements BookingServiceInterface {
                 .orElseThrow(() -> new BookingNotFoundException("id", bookingId));
     }
 
+    // Helper method to enrich a booking with user and vehicle details
     private BookingDetailsDto enrichBookingWithDetails(Booking booking) {
+        // Use CompletableFuture to asynchronously fetch user and vehicle details
         CompletableFuture<VehicleResponseDto> vehicleFuture = CompletableFuture.supplyAsync(
                 () -> vehicleServiceClient.getVehicleById(booking.getVehicleId()));
         CompletableFuture<UserResponseDto> userFuture = CompletableFuture.supplyAsync(
