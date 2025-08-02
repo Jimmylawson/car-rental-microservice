@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: booking-service-test
+
+# Disable Eureka for testing
+spring.cloud.discovery.enabled: false
+
+# Circuit Breaker configuration for testing
+resilience4j.circuitbreaker:
+  instances:
+    getUserById:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 3
+      slidingWindowType: COUNT_BASED
+      minimumNumberOfCalls: 5
+      waitDurationInOpenState: 10s
+      failureRateThreshold: 50
+
+# Enable debug logging for testing
+logging:
+  level:
+    root: INFO
+    com.jimmyproject.bookingservice: DEBUG
+    feign: DEBUG
+    org.springframework.cloud.openfeign: DEBUG

@@ -1,8 +1,10 @@
 package com.jimmyproject.bookingservice.controller;
 
+import com.jimmyproject.bookingservice.clients.UserServiceClient;
 import com.jimmyproject.bookingservice.dtos.BookingDetailsDto;
 import com.jimmyproject.bookingservice.dtos.BookingRequestDto;
 import com.jimmyproject.bookingservice.dtos.BookingResponseDto;
+import com.jimmyproject.bookingservice.dtos.UserResponseDto;
 import com.jimmyproject.bookingservice.service.BookingServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingServiceInterface bookingService;
+    private final UserServiceClient userServiceClient;
 
     @Operation(summary = "Create a new booking")
     @PostMapping
@@ -67,6 +70,11 @@ public class BookingController {
             @PathVariable UUID userId,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(bookingService.getBookingsByUser(userId, pageable));
+    }
+
+    @GetMapping("/test-fallback/{userId}")
+    public UserResponseDto testFallback(@PathVariable UUID userId) {
+        return userServiceClient.getUserById(userId);
     }
 
     @Operation(summary = "Get bookings by vehicle ID")

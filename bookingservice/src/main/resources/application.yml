@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: booking-service
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: jdbc:h2:mem:bookingdb
     username: sa
@@ -33,6 +35,23 @@ feign:
         connectTimeout: 1000  # 1 second timeout
         readTimeout: 1000     # 1 second timeout
         loggerLevel: full
+resilience4j:
+  circuit-breaker:
+    instances:
+      userService:  # This must match the name in @CircuitBreaker annotation
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: 1  # Reduced for testing
+        waitDurationInOpenState: 5s  # Reduced for testing
+        failureRateThreshold: 50
+        recordExceptions:
+          - java.lang.Exception
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - org.springframework.web.client.HttpServerErrorException
+          - org.springframework.web.client.ResourceAccessException
 
 
 
@@ -45,8 +64,11 @@ info:
     description: "Booking microservice for reservations"
     version: "1.0.0"
 
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: '*'
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
