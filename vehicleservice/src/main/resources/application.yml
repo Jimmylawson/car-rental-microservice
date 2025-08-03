@@ -38,9 +38,6 @@ feign:
         readTimeout: 120000
         loggerLevel: basic
 
-metrics:
-  tags:
-    application: ${spring.application.name}
 
 
 info:
@@ -52,10 +49,10 @@ info:
 
 # Uncomment for actuator endpoints
 management:
-   endpoints:
-     web:
-       exposure:
-     include: health, info, prometheus
-   endpoint:
-      prometheus:
-       enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
