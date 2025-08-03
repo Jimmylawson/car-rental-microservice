@@ -52,9 +52,9 @@ resilience4j:
           - java.util.concurrent.TimeoutException
           - org.springframework.web.client.HttpServerErrorException
           - org.springframework.web.client.ResourceAccessException
-
-
-
+metrics:
+  tags:
+    application: ${spring.application.name}
 
 
 
@@ -68,7 +68,10 @@ management:
   endpoint:
     health:
       show-details: always
+      prometheus:
+        enabled: true
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: health, info, prometheus
+

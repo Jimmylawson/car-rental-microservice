@@ -35,9 +35,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
-      base-path: /actuator
+        include: health, info, prometheus
   endpoint:
+    prometheus:
+      enabled: true
     health:
       show-details: always
     
@@ -47,3 +48,7 @@ logging:
     org.springframework.cloud.netflix.eureka: DEBUG
     com.netflix.eureka: DEBUG
     com.netflix.discovery: DEBUG
+
+metrics:
+  tags:
+    application: ${spring.application.name}

@@ -5,6 +5,7 @@ server:
 spring:
   application:
     name: gateway
+
   # Allow bean definition overriding to resolve conflicts between Resilience4j versions
   main:
     allow-bean-definition-overriding: true
@@ -14,6 +15,8 @@ spring:
         locator:
           enabled: true
           lowerCaseServiceId: true
+      httpclient:
+        response-timeout: 5s
       routes:
         - id: user-service-route
           uri: lb://user-service
@@ -25,10 +28,19 @@ spring:
                 name: userServiceCB
                 fallbackUri: forward:/fallback/userServiceFallback
                 statusCodes: 500, 502, 503, 504, 404
-            - name: RewritePath
+            - name: AddRequestHeader
               args:
-                regexp: /api/(?<segment>.*)
-                replacement: /${segment}
+                name: X-Gateway-Request
+                value: "true"
+
+# Add debug logging
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.reactive: DEBUG
+    reactor.netty: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
+    org.springframework.retry: DEBUG
 # Eureka Client Configuration
 eureka:
   client:
@@ -49,8 +61,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: health, info, prometheus
   endpoint:
+    prometheus:
+      enabled: true
     health:
       show-details: always
     circuitbreakers:
@@ -94,13 +108,8 @@ resilience4j:
     circuitbreaker:
       registerHealthIndicator: true
       eventConsumerBufferSize: 10
+metrics:
+    tags:
+      application: ${spring.application.name}
 
-# Logging configuration
-logging:
-  level:
-    root: INFO
-    org.springframework.cloud.gateway: DEBUG
-    com.netflix.eureka: DEBUG
-    com.netflix.discovery: DEBUG
-    org.springframework.cloud.commons: DEBUG
-    com.example.gateway: DEBUG
+

@@ -38,18 +38,24 @@ feign:
         readTimeout: 120000
         loggerLevel: basic
 
+metrics:
+  tags:
+    application: ${spring.application.name}
+
+
 info:
   app:
     name: "vehicle-service"
     description: "vehicle microservice for car rental system"
     version: "1.0.0"
 
+
 # Uncomment for actuator endpoints
-# management:
-#   endpoints:
-#     web:
-#       exposure:
-#         include: '*'
-#   endpoint:
-#     health:
-#       show-details: always
+management:
+   endpoints:
+     web:
+       exposure:
+     include: health, info, prometheus
+   endpoint:
+      prometheus:
+       enabled: true
