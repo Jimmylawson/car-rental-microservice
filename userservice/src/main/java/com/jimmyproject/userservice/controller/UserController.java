@@ -13,16 +13,17 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.UUID;
 
 @Tag(name = "User Management", description = "APIs for managing users")
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserServiceInterface userService;
+
+
 
     @Operation(summary = "Create a new user")
     @PostMapping
@@ -46,7 +47,7 @@ public class UserController {
     @Operation(summary = "Get all users with pagination")
     @GetMapping
     public ResponseEntity<Page<UserResponseDto>> getAllUsers(
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20)@Valid  Pageable pageable) {
         return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 
@@ -72,5 +73,6 @@ public class UserController {
     public void deleteUser(@PathVariable UUID userId) {
         userService.deleteUser(userId);
     }
-}
+    
 
+}

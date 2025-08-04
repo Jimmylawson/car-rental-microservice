@@ -2,7 +2,7 @@ package com.jimmyproject.userservice.entity;
 
 
 import com.jimmyproject.userservice.enums.Roles;
-import com.jimmyproject.utils.entity.BaseEntity;
+
 import jakarta.persistence.*;
 import lombok.*;
 
