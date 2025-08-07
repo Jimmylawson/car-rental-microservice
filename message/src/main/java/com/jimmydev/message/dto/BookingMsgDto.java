@@ -1,17 +1,18 @@
 package com.jimmydev.message.dto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record BookingMsgDto (
-        String bookingId,
+        UUID bookingId,
         UUID userId,
         UUID vehicleId,
-        String pickupDate,
-        String returnDate,
+        LocalDateTime pickupDate,
+        LocalDateTime returnDate,
         String bookingStatus,
         String email,
-        String phoneNUmber
-
+        String phoneNumber
 ){
 
 }

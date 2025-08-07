@@ -18,4 +18,6 @@ public interface BookingServiceInterface {
     BookingResponseDto updateBooking(UUID bookingId, BookingRequestDto bookingRequestDto);
     void deleteBooking(UUID bookingId);
     BookingDetailsDto getBookingWithDetails(UUID bookingId);
+    boolean updateCommunicationStatus(UUID bookingId);
+
 }

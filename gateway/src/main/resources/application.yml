@@ -5,6 +5,11 @@ server:
 spring:
   application:
     name: gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:7080/realms/master/protocol/openid-connect/certs
 
   # Allow bean definition overriding to resolve conflicts between Resilience4j versions
   main:
@@ -22,6 +27,15 @@ spring:
           uri: lb://user-service
           predicates:
             - Path=/api/users/**
+        - id: vehicle-service-route
+          uri: lb://vehicle-service
+          predicates:
+            - Path=/api/vehicles/**
+        - id: booking-service-route
+          uri: lb://booking-service
+          predicates:
+            - Path=/api/bookings/**
+
           filters:
             - name: CircuitBreaker
               args:

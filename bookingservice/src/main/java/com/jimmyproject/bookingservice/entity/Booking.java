@@ -28,6 +28,6 @@ public class Booking extends BaseEntity {
     private double totalPrice;
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
-
+    private Boolean communicationSent = false;
 
 }

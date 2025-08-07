@@ -4,11 +4,13 @@ import com.jimmyproject.bookingservice.clients.UserServiceClient;
 import com.jimmyproject.bookingservice.clients.VehicleServiceClient;
 import com.jimmyproject.bookingservice.dtos.*;
 import com.jimmyproject.bookingservice.entity.Booking;
+import com.jimmyproject.bookingservice.exception.ResourceNotFoundException;
 import com.jimmyproject.bookingservice.exceptions.BookingNotFoundException;
 import com.jimmyproject.bookingservice.mapper.BookingMapper;
 import com.jimmyproject.bookingservice.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class BookingServiceImpl implements BookingServiceInterface {
     private final BookingMapper bookingMapper;
     private final UserServiceClient userServiceClient;
     private final VehicleServiceClient vehicleServiceClient;
+    private final StreamBridge streamBridge;
 
     @Override
     @Transactional
@@ -33,8 +36,26 @@ public class BookingServiceImpl implements BookingServiceInterface {
         log.info("Creating new booking for user: {}", bookingRequestDto.getUserId());
         Booking booking = bookingMapper.toEntity(bookingRequestDto);
         Booking savedBooking = bookingRepository.save(booking);
+        sendCommunication(savedBooking);
         log.info("Created booking with ID: {}", savedBooking.getId());
         return bookingMapper.toBookingResponseDto(savedBooking);
+    }
+
+
+
+    private void sendCommunication(Booking savedBooking) {
+        // Send communication using StreamBridge
+        BookingMsgDto bookingMsgDto = new BookingMsgDto(
+                savedBooking.getId(),
+                savedBooking.getUserId(),
+                savedBooking.getVehicleId(),
+                savedBooking.getStartDate(),
+                savedBooking.getEndDate(),
+                savedBooking.getStatus().name(),
+                userServiceClient.getUserById(savedBooking.getUserId()).getEmail()
+        );
+       var result =  streamBridge.send("communication-out-0", bookingMsgDto);
+        log.info("Is the Communication request successfully processed? {}", result);
     }
 
     @Override
@@ -134,6 +155,21 @@ public class BookingServiceImpl implements BookingServiceInterface {
                         .user(userFuture.join())
                         .build())
                 .join();
+    }
+
+    @Override
+    public boolean updateCommunicationStatus(UUID bookingId) {
+        boolean isUpdated = false;
+        if(bookingId != null){
+            var booking = bookingRepository.findById(bookingId).orElseThrow(
+                    ()-> new ResourceNotFoundException("Booking", "id", bookingId));
+        booking.setCommunicationSent(true);
+        bookingRepository.save(booking);
+        isUpdated = true;
+        }
+
+        return isUpdated;
+
     }
 
 }
